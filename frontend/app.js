@@ -71,7 +71,11 @@ function playPCM16(buffer) {
 async function fetchBalance() {
     try {
         // TARGET FIXED: Points to absolute ngrok instance to bypass GitHub Pages 404
-        const res = await fetch(`${httpApiBase}/api/balance/${USER_ID}`);
+        const res = await fetch(`${httpApiBase}/api/balance/${USER_ID}`, {
+            headers: {
+                "ngrok-skip-browser-warning": "true"
+            }
+        });
         if (res.ok) {
             const data = await res.json();
             tokenDisplay.innerText = data.balance.toLocaleString();

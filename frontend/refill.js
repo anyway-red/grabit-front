@@ -1,8 +1,15 @@
 const USER_ID = "test_user";
 
+const BACKEND_NGROK_DOMAIN = "cringing-niece-playpen.ngrok-free.dev";
+const httpApiBase = `https://${BACKEND_NGROK_DOMAIN}`;
+
 async function fetchBalance() {
     try {
-        const res = await fetch(`/api/balance/${USER_ID}`);
+        const res = await fetch(`${httpApiBase}/api/balance/${USER_ID}`, {
+            headers: {
+                "ngrok-skip-browser-warning": "true"
+            }
+        });
         const data = await res.json();
         document.getElementById("current-balance").innerText = data.balance.toLocaleString();
     } catch (e) {
@@ -17,9 +24,12 @@ document.querySelectorAll('.buy-btn').forEach(btn => {
         e.target.disabled = true;
         
         try {
-            const res = await fetch('/api/refill-tokens', {
+            const res = await fetch(`${httpApiBase}/api/refill-tokens`, {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+                    'Content-Type': 'application/json',
+                    'ngrok-skip-browser-warning': 'true'
+                },
                 body: JSON.stringify({ user_id: USER_ID, amount: amount })
             });
             const data = await res.json();
