@@ -1,5 +1,10 @@
 const USER_ID = "test_user";
 
+// --- CRITICAL CONFIGURATION FIXED FOR GITHUB PAGES ---
+const BACKEND_NGROK_DOMAIN = "cringing-niece-playpen.ngrok-free.dev";
+const httpApiBase = `https://${BACKEND_NGROK_DOMAIN}`;
+const wsUrl = `wss://${BACKEND_NGROK_DOMAIN}/api/live-fix`;
+
 // Elements
 const videoEl = document.getElementById('camera-feed');
 const canvasEl = document.getElementById('hidden-canvas');
@@ -65,7 +70,8 @@ function playPCM16(buffer) {
 
 async function fetchBalance() {
     try {
-        const res = await fetch(`/api/balance/${USER_ID}`);
+        // TARGET FIXED: Points to absolute ngrok instance to bypass GitHub Pages 404
+        const res = await fetch(`${httpApiBase}/api/balance/${USER_ID}`);
         if (res.ok) {
             const data = await res.json();
             tokenDisplay.innerText = data.balance.toLocaleString();
@@ -89,8 +95,8 @@ async function startSession() {
         canvasEl.width = 640;
         canvasEl.height = 480;
 
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        ws = new WebSocket("https://cringing-niece-playpen.ngrok-free.dev/api/live-fix");
+        // INSTANTIATION FIXED: Utilizes absolute secure websocket routing definition
+        ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
             statusIndicator.className = 'status-indicator connected';
