@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Refill Tokens - DIY Assistant</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="refill-container">
+        <div class="header">
+            <h1>Refill Tokens</h1>
+            <p style="color: var(--text-muted); margin-top: 0.5rem;">Purchase more tokens to continue your live DIY sessions.</p>
+        </div>
+
+        <div style="margin-top: 2rem; font-size: 1.25rem; font-weight: 800; border-bottom: 2px solid var(--border-color); display: inline-block; padding-bottom: 0.5rem;">
+            Current Balance: <span id="current-balance" class="token-balance">---</span>
+        </div>
+
+        <div class="packages-grid">
+            <div class="package-card minimal-box">
+                <h3>Starter Pack</h3>
+                <div class="package-price">$5.00</div>
+                <p style="color: var(--text-muted)">100,000 Tokens</p>
+                <button class="btn btn-primary buy-btn" data-amount="100000">Buy Now</button>
+            </div>
+            
+            <div class="package-card minimal-box" style="background-color: var(--border-color); color: var(--bg-light);">
+                <h3>Pro Mechanic</h3>
+                <div class="package-price" style="border-bottom-color: var(--bg-light)">$15.00</div>
+                <p style="color: #ccc">500,000 Tokens</p>
+                <button class="btn buy-btn" data-amount="500000" style="border-color: var(--bg-light)">Buy Now</button>
+            </div>
+
+            <div class="package-card minimal-box">
+                <h3>Contractor</h3>
+                <div class="package-price">$40.00</div>
+                <p style="color: var(--text-muted)">2,000,000 Tokens</p>
+                <button class="btn btn-primary buy-btn" data-amount="2000000">Buy Now</button>
+            </div>
+        </div>
+        
+        <div style="margin-top: 3rem;">
+            <a href="app.html" class="link-btn"><- Back to Assistant</a>
+        </div>
+    </div>
+    <script src="refill.js"></script>
+</body>
+</html>
