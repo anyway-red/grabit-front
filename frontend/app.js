@@ -21,14 +21,27 @@ let ws = null;
 let mediaStream = null;
 let sendInterval = null;
 let audioContext = null;
-let nextAudioStartTime = 0; // Essential for chronological audio scheduling
+let gainNode = null;           // Controls loud media output level
+let nextAudioStartTime = 0;   // Tracks sequential alignment for 24kHz stream
 let audioInputProcessor = null;
 let audioInputSource = null;
 
-function initAudio() {
+async function initAudio() {
     if (!audioContext) {
-        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 16000 });
+        // Force the Web Audio context exactly to Gemini's native 24000Hz voice output
+        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+
+        // Build a dedicated gain stage to boost output volume floor by 250%
+        gainNode = audioContext.createGain();
+        gainNode.gain.setValueAtTime(2.5, audioContext.currentTime);
+        gainNode.connect(audioContext.destination);
+
         nextAudioStartTime = audioContext.currentTime;
+    }
+
+    // Ensure the hardware subsystem is awake inside the user execution context
+    if (audioContext.state === 'suspended') {
+        await audioContext.resume();
     }
 }
 
@@ -44,7 +57,7 @@ function base64ToArrayBuffer(base64) {
 
 // Scheduled PCM16 Audio playback loop
 function playPCM16(buffer) {
-    if (!audioContext) return;
+    if (!audioContext || !gainNode) return;
 
     const int16Array = new Int16Array(buffer);
     const float32Array = new Float32Array(int16Array.length);
@@ -52,25 +65,27 @@ function playPCM16(buffer) {
         float32Array[i] = int16Array[i] / 32768.0;
     }
 
-    const audioBuffer = audioContext.createBuffer(1, float32Array.length, 16000);
+    const audioBuffer = audioContext.createBuffer(1, float32Array.length, 24000);
     audioBuffer.getChannelData(0).set(float32Array);
 
     const source = audioContext.createBufferSource();
     source.buffer = audioBuffer;
-    source.connect(audioContext.destination);
 
-    // Schedule chunks cleanly after each other
-    if (nextAudioStartTime < audioContext.currentTime) {
-        nextAudioStartTime = audioContext.currentTime;
+    // Route through our boosted speaker amplifier stage instead of direct destination
+    source.connect(gainNode);
+
+    // Dynamic recovery window if network buffering drops behind physical timeline
+    const currentTime = audioContext.currentTime;
+    if (nextAudioStartTime < currentTime) {
+        nextAudioStartTime = currentTime;
     }
 
     source.start(nextAudioStartTime);
-    nextAudioStartTime += audioBuffer.duration; // Advance time pointer
+    nextAudioStartTime += audioBuffer.duration; // Advance chronologically
 }
 
 async function fetchBalance() {
     try {
-        // TARGET FIXED: Points to absolute ngrok instance to bypass GitHub Pages 404
         const res = await fetch(`${httpApiBase}/api/balance/${USER_ID}`, {
             headers: {
                 "ngrok-skip-browser-warning": "true"
@@ -87,7 +102,9 @@ async function fetchBalance() {
 
 async function startSession() {
     errorMsg.style.display = 'none';
-    initAudio();
+
+    // Fire instantiation inside the clicking thread context to clear browser permissions blocks
+    await initAudio();
 
     try {
         mediaStream = await navigator.mediaDevices.getUserMedia({
@@ -99,7 +116,6 @@ async function startSession() {
         canvasEl.width = 640;
         canvasEl.height = 480;
 
-        // INSTANTIATION FIXED: Utilizes absolute secure websocket routing definition
         ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
@@ -144,20 +160,17 @@ async function startSession() {
 
 function startAudioCapture() {
     audioInputSource = audioContext.createMediaStreamSource(mediaStream);
-    // 2048 buffer size gives smooth real-time performance
     audioInputProcessor = audioContext.createScriptProcessor(2048, 1, 1);
 
     audioInputProcessor.onaudioprocess = (e) => {
         if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
         const inputData = e.inputBuffer.getChannelData(0);
-        // Convert Float32 data back down to standard Int16 signed binary arrays
         const int16Buffer = new Int16Array(inputData.length);
         for (let i = 0; i < inputData.length; i++) {
             int16Buffer[i] = Math.max(-1, Math.min(1, inputData[i])) * 0x7FFF;
         }
 
-        // Transform the raw bytes to base64 for processing strings
         const binaryString = String.fromCharCode.apply(null, new Uint8Array(int16Buffer.buffer));
         const base64Audio = window.btoa(binaryString);
 
