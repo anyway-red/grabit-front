@@ -1,15 +1,26 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 
-* {
+*,
+*::before,
+*::after {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
-    font-family: 'Inter', sans-serif;
+}
+
+:root {
+    --black: #0a0a0a;
+    --white: #ffffff;
+    --gray-100: #f5f5f5;
+    --gray-200: #e5e5e5;
+    --gray-400: #a3a3a3;
+    --gray-600: #525252;
 }
 
 body {
-    background: #000;
-    color: #fff;
+    font-family: 'Inter', sans-serif;
+    background: var(--white);
+    color: var(--black);
     min-height: 100vh;
     overflow: hidden;
 }
@@ -29,7 +40,7 @@ body {
     height: 100%;
     object-fit: cover;
     z-index: 0;
-    background: #000;
+    background: var(--black);
 }
 
 /* ── Top bar ────────────────────────────────────────────── */
@@ -42,8 +53,11 @@ body {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    padding: 1.25rem 1.5rem;
-    background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%);
+    padding: 1.25rem 2rem;
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--gray-200);
 }
 
 .status-badge {
@@ -51,58 +65,60 @@ body {
     align-items: center;
     gap: 0.5rem;
     font-size: 0.8rem;
-    font-weight: 600;
+    font-weight: 700;
     text-transform: uppercase;
-    letter-spacing: 0.05em;
-    color: rgba(255,255,255,0.85);
+    letter-spacing: 0.08em;
+    color: var(--gray-600);
 }
 
 .status-indicator {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: rgba(255,255,255,0.4);
-    border: 1.5px solid rgba(255,255,255,0.6);
+    background: var(--gray-400);
 }
 
 .status-indicator.connected {
-    background: #4ade80;
-    border-color: #4ade80;
-    box-shadow: 0 0 6px #4ade80;
+    background: #22c55e;
     animation: pulse-green 2s infinite;
 }
 
 .status-indicator.error {
-    background: #f87171;
-    border-color: #f87171;
+    background: #ef4444;
 }
 
 @keyframes pulse-green {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
+
+    0%,
+    100% {
+        opacity: 1;
+    }
+
+    50% {
+        opacity: 0.5;
+    }
 }
 
-/* Token text — top right */
+/* Token text ── top right */
 .token-text {
     font-size: 0.85rem;
-    font-weight: 600;
-    color: rgba(255,255,255,0.9);
-    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+    font-weight: 700;
+    color: var(--black);
 }
 
 .refill-link {
-    color: #a5f3fc;
+    color: var(--black);
     text-decoration: none;
-    font-weight: 700;
+    font-weight: 800;
+    border-bottom: 1px solid var(--black);
+    margin-left: 0.25rem;
 }
 
 .refill-link:hover {
-    color: #fff;
-    text-decoration: underline;
+    opacity: 0.7;
 }
 
 /* ── Pre-session start screen ───────────────────────────── */
-/* ── Pre-session card ───────────────────────────────────── */
 .start-screen {
     position: fixed;
     inset: 0;
@@ -110,11 +126,14 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    background: #111;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
 }
 
 .pre-call-card {
-    background: #1c1c1e;
+    background: var(--white);
+    border: 1.5px solid var(--gray-200);
     border-radius: 24px;
     padding: 2.5rem 2rem;
     width: min(360px, 90vw);
@@ -122,74 +141,73 @@ body {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
-    box-shadow: 0 24px 60px rgba(0,0,0,0.6);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.06);
 }
 
 .pre-call-logo {
     font-size: 1.6rem;
-    font-weight: 800;
-    color: #fff;
-    letter-spacing: -0.02em;
+    font-weight: 900;
+    color: var(--black);
+    letter-spacing: -0.03em;
     margin-bottom: 0.25rem;
 }
 
 .pre-call-label {
-    font-size: 0.8rem;
-    font-weight: 600;
+    font-size: 0.75rem;
+    font-weight: 800;
     text-transform: uppercase;
-    letter-spacing: 0.08em;
-    color: rgba(255,255,255,0.45);
+    letter-spacing: 0.12em;
+    color: var(--gray-400);
 }
 
 .pre-call-tokens {
     font-size: 2.8rem;
-    font-weight: 800;
-    color: #fff;
+    font-weight: 900;
+    color: var(--black);
+    letter-spacing: -0.04em;
     line-height: 1;
 }
 
 .pre-call-refill {
     display: block;
-    color: #60a5fa;
+    color: var(--black);
     font-size: 0.9rem;
     font-weight: 700;
     text-decoration: none;
-    padding: 0.5rem 1.5rem;
-    border: 1.5px solid rgba(96,165,250,0.4);
+    padding: 0.55rem 1.5rem;
+    border: 1.5px solid var(--gray-200);
     border-radius: 50px;
-    transition: all 0.2s;
+    transition: border-color 0.2s, transform 0.2s;
     margin-bottom: 0.5rem;
 }
 
-.pre-call-refill:hover, .pre-call-refill:active {
-    background: rgba(96,165,250,0.15);
-    border-color: #60a5fa;
+.pre-call-refill:hover,
+.pre-call-refill:active {
+    border-color: var(--black);
 }
 
 .pre-call-start {
     width: 100%;
     padding: 1.1rem;
-    background: #22c55e;
-    color: #fff;
+    background: var(--black);
+    color: var(--white);
     border: none;
-    border-radius: 16px;
-    font-size: 1.15rem;
-    font-weight: 800;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
     letter-spacing: 0.02em;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: opacity 0.2s, transform 0.2s;
     -webkit-tap-highlight-color: transparent;
-    /* Large enough touch target for mobile */
     min-height: 56px;
 }
 
 .pre-call-start:hover {
-    background: #16a34a;
+    opacity: 0.85;
 }
 
 .pre-call-start:active {
     transform: scale(0.97);
-    background: #15803d;
 }
 
 /* ── In-call bottom bar ─────────────────────────────────── */
@@ -204,44 +222,51 @@ body {
     align-items: center;
     gap: 2.5rem;
     padding: 2rem 2rem 3rem;
-    background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);
+    background: linear-gradient(to top, rgba(255, 255, 255, 0.9) 0%, transparent 100%);
+    pointer-events: none;
+    /* Allows clicks through background container gradient */
 }
 
-/* Generic call button (circular, frosted) */
 .call-btn {
+    pointer-events: auto;
+    /* Re-enables button layout clicks */
     width: 64px;
     height: 64px;
     border-radius: 50%;
-    border: none;
+    border: 1px solid var(--gray-200);
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    background: rgba(255, 255, 255, 0.18);
+    background: rgba(255, 255, 255, 0.85);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
-    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
-    transition: all 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    transition: border-color 0.2s, transform 0.2s;
+    color: var(--black);
 }
 
 .call-btn:hover {
-    background: rgba(255, 255, 255, 0.28);
-    transform: scale(1.08);
+    border-color: var(--black);
+    transform: translateY(-2px);
 }
 
 .call-btn:active {
     transform: scale(0.93);
 }
 
-/* Hang up — red */
+/* Hang up ── red solid style */
 .call-btn-hangup {
     width: 74px;
     height: 74px;
-    background: rgba(239, 68, 68, 0.85);
+    background: #ef4444;
+    border: none;
+    color: var(--white);
 }
 
 .call-btn-hangup:hover {
-    background: rgba(239, 68, 68, 1);
+    background: #dc2626;
+    transform: translateY(-2px);
 }
 
 /* ── Error toast ────────────────────────────────────────── */
@@ -251,119 +276,144 @@ body {
     left: 50%;
     transform: translateX(-50%);
     z-index: 30;
-    background: rgba(239, 68, 68, 0.85);
-    color: #fff;
+    background: #ef4444;
+    color: var(--white);
     padding: 0.6rem 1.4rem;
     border-radius: 50px;
     font-size: 0.875rem;
-    font-weight: 600;
+    font-weight: 700;
     display: none;
-    backdrop-filter: blur(8px);
     text-align: center;
+    box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
 }
 
 /* ── Refill page ────────────────────────────────────────── */
-:root {
-    --bg-light: #ffffff;
-    --text-dark: #000000;
-    --border-color: #000000;
-    --text-muted: #555555;
-}
-
 .refill-container {
-    max-width: 900px;
-    margin: 4rem auto;
-    padding: 2rem;
-    color: #000;
+    max-width: 960px;
+    margin: 6rem auto 4rem;
+    padding: 0 1.5rem;
 }
 
 .packages-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.5rem;
     margin-top: 3rem;
 }
 
 .minimal-box {
-    background: #fff;
-    border: 2px solid #000;
-    padding: 1.5rem;
+    background: var(--white);
+    border: 1.5px solid var(--gray-200);
+    padding: 2rem;
+    border-radius: 16px;
+    transition: border-color 0.2s, transform 0.2s;
 }
 
 .package-card {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    box-shadow: 8px 8px 0px #000;
+}
+
+.package-card:hover {
+    border-color: var(--black);
+    transform: translateY(-4px);
+}
+
+.package-card.featured {
+    background: var(--black);
+    color: var(--white);
+    border-color: var(--black);
 }
 
 .package-price {
-    font-size: 2.5rem;
-    font-weight: 800;
-    border-bottom: 2px solid #000;
-    padding-bottom: 0.5rem;
-    margin-bottom: 0.5rem;
+    font-size: 2rem;
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    padding-bottom: 0.25rem;
+    margin-bottom: 0.25rem;
+}
+
+.package-desc {
+    font-size: 0.85rem;
+    color: var(--gray-600);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+}
+
+.package-card.featured .package-desc {
+    color: #aaa;
 }
 
 .btn {
     width: 100%;
-    padding: 1rem;
-    border: 2px solid #000;
-    font-size: 1rem;
-    font-weight: 800;
-    text-transform: uppercase;
+    padding: 0.75rem;
+    border: 1.5px solid var(--gray-200);
+    font-size: 0.9rem;
+    font-weight: 700;
+    border-radius: 50px;
     cursor: pointer;
-    background: #fff;
-    color: #000;
-    transition: all 0.2s ease;
-    box-shadow: 4px 4px 0px #000;
+    background: var(--white);
+    color: var(--black);
+    transition: background 0.2s, color 0.2s, border-color 0.2s;
+    text-align: center;
+    text-decoration: none;
 }
 
 .btn:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px #000;
+    background: var(--black);
+    color: var(--white);
+    border-color: var(--black);
 }
 
-.btn-primary {
-    background: #000;
-    color: #fff;
+.package-card.featured .btn {
+    background: var(--white);
+    color: var(--black);
+    border-color: var(--white);
 }
 
+.package-card.featured .btn:hover {
+    background: var(--gray-200);
+}
+
+/* ── Generic clean layout helpers ───────────────────────── */
 .landing-container {
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 2rem;
+    padding: 8rem 1.5rem 4rem;
     text-align: center;
-    background: #fff;
-    color: #000;
+    background: var(--white);
 }
 
 .landing-title {
-    font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: -0.05em;
-    border-bottom: 4px solid #000;
-    display: inline-block;
-    padding-bottom: 0.5rem;
+    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-weight: 900;
+    letter-spacing: -0.04em;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
 }
 
 .landing-subtitle {
-    font-size: 1.25rem;
-    color: #555;
-    margin-bottom: 3rem;
-    max-width: 600px;
+    font-size: clamp(1rem, 2.5vw, 1.2rem);
+    color: var(--gray-600);
+    max-width: 520px;
+    line-height: 1.65;
+    margin-bottom: 2.5rem;
 }
 
 .link-btn {
-    color: #000;
+    color: var(--black);
     text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    border-bottom: 2px solid #000;
+    font-size: 0.85rem;
+    font-weight: 700;
+    border-bottom: 1.5px solid var(--black);
+    padding-bottom: 2px;
+    transition: opacity 0.2s;
+}
+
+.link-btn:hover {
+    opacity: 0.7;
 }
