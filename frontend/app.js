@@ -20,28 +20,34 @@ const errorMsg = document.getElementById('error-message');
 let ws = null;
 let mediaStream = null;
 let sendInterval = null;
-let audioContext = null;
-let gainNode = null;           // Controls loud media output level
-let nextAudioStartTime = 0;   // Tracks sequential alignment for 24kHz stream
+
+// Audio Systems Split: One for loud playback, one for precise input capture
+let playbackAudioContext = null;
+let recordAudioContext = null;
+let gainNode = null;
+let nextAudioStartTime = 0;
 let audioInputProcessor = null;
 let audioInputSource = null;
 
-async function initAudio() {
-    if (!audioContext) {
-        // Force the Web Audio context exactly to Gemini's native 24000Hz voice output
-        audioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
-
-        // Build a dedicated gain stage to boost output volume floor by 250%
-        gainNode = audioContext.createGain();
-        gainNode.gain.setValueAtTime(2.5, audioContext.currentTime);
-        gainNode.connect(audioContext.destination);
-
-        nextAudioStartTime = audioContext.currentTime;
+async function initAudioSystems() {
+    // 1. Setup Playback Pipeline (Forced to 24kHz to match Gemini output)
+    if (!playbackAudioContext) {
+        playbackAudioContext = new (window.AudioContext || window.webkitAudioContext)({ sampleRate: 24000 });
+        gainNode = playbackAudioContext.createGain();
+        gainNode.gain.setValueAtTime(3.0, playbackAudioContext.currentTime); // Loud volume boost
+        gainNode.connect(playbackAudioContext.destination);
+        nextAudioStartTime = playbackAudioContext.currentTime;
+    }
+    if (playbackAudioContext.state === 'suspended') {
+        await playbackAudioContext.resume();
     }
 
-    // Ensure the hardware subsystem is awake inside the user execution context
-    if (audioContext.state === 'suspended') {
-        await audioContext.resume();
+    // 2. Setup Recording Pipeline (Native hardware matching to avoid driver drift)
+    if (!recordAudioContext) {
+        recordAudioContext = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    if (recordAudioContext.state === 'suspended') {
+        await recordAudioContext.resume();
     }
 }
 
@@ -55,9 +61,8 @@ function base64ToArrayBuffer(base64) {
     return bytes.buffer;
 }
 
-// Scheduled PCM16 Audio playback loop
 function playPCM16(buffer) {
-    if (!audioContext || !gainNode) return;
+    if (!playbackAudioContext || !gainNode) return;
 
     const int16Array = new Int16Array(buffer);
     const float32Array = new Float32Array(int16Array.length);
@@ -65,31 +70,26 @@ function playPCM16(buffer) {
         float32Array[i] = int16Array[i] / 32768.0;
     }
 
-    const audioBuffer = audioContext.createBuffer(1, float32Array.length, 24000);
+    const audioBuffer = playbackAudioContext.createBuffer(1, float32Array.length, 24000);
     audioBuffer.getChannelData(0).set(float32Array);
 
-    const source = audioContext.createBufferSource();
+    const source = playbackAudioContext.createBufferSource();
     source.buffer = audioBuffer;
-
-    // Route through our boosted speaker amplifier stage instead of direct destination
     source.connect(gainNode);
 
-    // Dynamic recovery window if network buffering drops behind physical timeline
-    const currentTime = audioContext.currentTime;
+    const currentTime = playbackAudioContext.currentTime;
     if (nextAudioStartTime < currentTime) {
         nextAudioStartTime = currentTime;
     }
 
     source.start(nextAudioStartTime);
-    nextAudioStartTime += audioBuffer.duration; // Advance chronologically
+    nextAudioStartTime += audioBuffer.duration;
 }
 
 async function fetchBalance() {
     try {
         const res = await fetch(`${httpApiBase}/api/balance/${USER_ID}`, {
-            headers: {
-                "ngrok-skip-browser-warning": "true"
-            }
+            headers: { "ngrok-skip-browser-warning": "true" }
         });
         if (res.ok) {
             const data = await res.json();
@@ -102,20 +102,21 @@ async function fetchBalance() {
 
 async function startSession() {
     errorMsg.style.display = 'none';
-
-    // Fire instantiation inside the clicking thread context to clear browser permissions blocks
-    await initAudio();
+    await initAudioSystems();
 
     try {
         mediaStream = await navigator.mediaDevices.getUserMedia({
             video: { width: 640, height: 480 },
-            audio: true
+            audio: {
+                echoCancellation: true,
+                noiseSuppression: true,
+                autoGainControl: true
+            }
         });
         videoEl.srcObject = mediaStream;
 
         canvasEl.width = 640;
         canvasEl.height = 480;
-
         ws = new WebSocket(wsUrl);
 
         ws.onopen = () => {
@@ -124,10 +125,7 @@ async function startSession() {
             startBtn.style.display = 'none';
             stopBtn.style.display = 'block';
 
-            // 1. Stream Camera Frames (2 FPS)
             sendInterval = setInterval(captureAndSendFrame, 500);
-
-            // 2. Stream Microphone Input
             startAudioCapture();
         };
 
@@ -143,13 +141,10 @@ async function startSession() {
                 const arrayBuffer = base64ToArrayBuffer(msg.data);
                 playPCM16(arrayBuffer);
             }
-
             if (Math.random() < 0.2) fetchBalance();
         };
 
-        ws.onclose = () => {
-            stopSession();
-        };
+        ws.onclose = () => { stopSession(); };
 
     } catch (err) {
         console.error("Error starting session", err);
@@ -159,16 +154,32 @@ async function startSession() {
 }
 
 function startAudioCapture() {
-    audioInputSource = audioContext.createMediaStreamSource(mediaStream);
-    audioInputProcessor = audioContext.createScriptProcessor(2048, 1, 1);
+    audioInputSource = recordAudioContext.createMediaStreamSource(mediaStream);
+
+    // Use a smaller 512 slice buffer size to drastically reduce microphone streaming latency
+    audioInputProcessor = recordAudioContext.createScriptProcessor(512, 1, 1);
+
+    const targetSampleRate = 16000; // 16kHz is widely supported by Gemini Live input lines
+    const srcSampleRate = recordAudioContext.sampleRate;
 
     audioInputProcessor.onaudioprocess = (e) => {
         if (!ws || ws.readyState !== WebSocket.OPEN) return;
 
         const inputData = e.inputBuffer.getChannelData(0);
-        const int16Buffer = new Int16Array(inputData.length);
-        for (let i = 0; i < inputData.length; i++) {
-            int16Buffer[i] = Math.max(-1, Math.min(1, inputData[i])) * 0x7FFF;
+
+        // Dynamic Downsampling Logic: Resamples input data on-the-fly to a clean 16kHz layout
+        const resampleRatio = srcSampleRate / targetSampleRate;
+        const targetLength = Math.round(inputData.length / resampleRatio);
+        const int16Buffer = new Int16Array(targetLength);
+
+        for (let i = 0; i < targetLength; i++) {
+            const srcIndex = Math.round(i * resampleRatio);
+            if (srcIndex < inputData.length) {
+                let sample = inputData[srcIndex];
+                // Soft ceiling compression clamp
+                sample = Math.max(-1, Math.min(1, sample));
+                int16Buffer[i] = sample < 0 ? sample * 0x8000 : sample * 0x7FFF;
+            }
         }
 
         const binaryString = String.fromCharCode.apply(null, new Uint8Array(int16Buffer.buffer));
@@ -181,7 +192,7 @@ function startAudioCapture() {
     };
 
     audioInputSource.connect(audioInputProcessor);
-    audioInputProcessor.connect(audioContext.destination);
+    audioInputProcessor.connect(recordAudioContext.destination);
 }
 
 function captureAndSendFrame() {
@@ -227,5 +238,4 @@ function stopSession() {
 startBtn.addEventListener('click', startSession);
 stopBtn.addEventListener('click', stopSession);
 
-// Initialize Ledger View
 fetchBalance();
