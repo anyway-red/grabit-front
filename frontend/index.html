@@ -1,6 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const player = document.getElementById("hero-playlist-player");
+        let currentTrack = 1;
+        const maxTracks = 6;
+
+        if (player) {
+            player.addEventListener("ended", () => {
+                currentTrack++;
+                if (currentTrack > maxTracks) {
+                    currentTrack = 1; // Loops straight back to public/diy1.mp4
+                }
+
+                // Updates the file source dynamically string matching: diy1, diy2, diy3...
+                player.src = `./public/diy${currentTrack}.mp4`;
+
+                // Forces the browser to flush the old video stream pipeline and load the new file
+                player.load();
+
+                // Forces playback initiation on track swap
+                player.play().catch(error => {
+                    console.log("Autoplay waiting for user interaction:", error);
+                });
+            });
+        }
+    });
+</script>
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -26,15 +54,24 @@
     </nav>
 
     <section class="hero animate-hero">
-        <div class="hero-eyebrow"><span>Live AI Expert</span> — Available 24/7</div>
-        <h1 class="typing-text">Fix anything. Right now.</h1>
-        <p class="hero-sub">
-            Point your phone camera at any broken thing — pipe, engine, wire, wall —
-            and our AI expert will guide you through the fix with live voice instructions.
-        </p>
-        <div class="hero-actions">
-            <a href="app.html" class="btn-primary">Start a Free Call</a>
-            <a href="#how" class="btn-ghost">See how it works</a>
+        <div class="hero-content">
+            <div class="hero-eyebrow"><span>Live AI Expert</span> — Available 24/7</div>
+            <h1 class="typing-text">Fix anything. Right now.</h1>
+            <p class="hero-sub">
+                Point your phone camera at any leaking pipe, dead circuit, or engine code. GrabIt watches your work in
+                real time and speaks the exact mechanical steps aloud so you can finish the job.
+            </p>
+            <div class="hero-actions">
+                <a href="app.html" class="btn-primary">Start a Free Call</a>
+                <a href="#how" class="btn-ghost">See how it works</a>
+            </div>
+        </div>
+
+        <div class="hero-video-wrapper">
+            <div class="video-overlay"></div>
+            <video id="hero-playlist-player" src="./public/diy1.mp4" autoplay muted playsinline>
+                Your browser does not support the video tag.
+            </video>
         </div>
     </section>
 

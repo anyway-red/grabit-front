@@ -132,15 +132,101 @@ nav {
 }
 
 /* ── HERO ────────────────────────────────── */
+/* ── UPDATED HERO ENGINE ─────────────────── */
+/* ── UPDATED HERO ENGINE ─────────────────── */
 .hero {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
+    display: grid;
+    grid-template-columns: 60% 40%;
+    /* Strict structural layout allocations */
     align-items: center;
-    text-align: center;
-    padding: 8rem 1.5rem 4rem;
+    gap: 4rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 8rem 2rem 4rem;
     border-bottom: 1px solid var(--gray-200);
+}
+
+/* ── VIDEO BRUTALIST WRAPPER ─────────────── */
+.hero-video-wrapper {
+    position: relative;
+    width: 100%;
+    /* Spans the entire width of the 40% grid column */
+    max-width: 100%;
+    /* Removes old absolute constraints */
+    aspect-ratio: 9 / 16;
+    /* Retains crisp native TikTok frame proportions */
+    margin: 0 auto;
+    border-radius: 24px;
+    overflow: hidden;
+    border: 1.5px solid var(--gray-200);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+}
+
+/* Side Darkening Vignette Filter Layer */
+.video-overlay {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background: linear-gradient(to right,
+            rgba(0, 0, 0, 0.45) 0%,
+            transparent 15%,
+            transparent 85%,
+            rgba(0, 0, 0, 0.45) 100__);
+    pointer-events: none;
+}
+
+.hero-video-wrapper video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 1;
+    display: block;
+}
+
+/* ── RESPONSIVE RESPACING ────────────────── */
+@media (max-width: 900px) {
+    .hero {
+        grid-template-columns: 1fr;
+        /* Stack vertically for mobile viewports */
+        gap: 3rem;
+        padding-top: 7rem;
+        text-align: center;
+    }
+
+    .hero-video-wrapper {
+        width: 100%;
+        max-width: 320px;
+        /* Restricts excessive height scaling on handheld screens */
+    }
+}
+
+/* ── RESPONSIVE RESPACING ────────────────── */
+@media (max-width: 900px) {
+    .hero {
+        grid-template-columns: 1fr;
+        gap: 3rem;
+        padding-top: 7rem;
+        text-align: center;
+    }
+
+    .hero-content {
+        align-items: center;
+        text-align: center;
+    }
+
+    .typing-text {
+        margin: 0 auto 1.5rem;
+    }
+
+    .hero-actions {
+        justify-content: center;
+    }
+
+    .hero-video-wrapper {
+        max-width: 40%;
+        /* Scales neatly downward on tablets and mobile screens */
+    }
 }
 
 .animate-hero .hero-eyebrow,
@@ -180,7 +266,7 @@ nav {
 
 /* Pure CSS Typing Heading Layout */
 .typing-text {
-    font-size: clamp(2rem, 5vw, 4.5rem);
+    font-size: clamp(1rem, 2vw, 4.5rem);
     font-weight: 900;
     letter-spacing: -0.04em;
     line-height: 1.1;
@@ -367,8 +453,8 @@ nav {
 }
 
 .use-case:hover {
-    background: var(--black);
-    color: var(--white);
+    background: var(--white);
+    color: var(--black);
     transform: translateY(-4px);
 }
 
@@ -377,6 +463,10 @@ nav {
     height: 44px;
     margin-bottom: 20px;
     color: inherit;
+}
+
+.use-case-svg:hover {
+    color: var(--black);
 }
 
 .use-case h3 {
