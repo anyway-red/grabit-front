@@ -22,17 +22,16 @@
                 </div>
             </div>
 
-            <div class="token-card">
-                <div>
-                    <div style="font-size: 0.875rem; color: var(--text-muted); text-transform: uppercase; font-weight: 800;">Token Balance</div>
-                    <div id="token-display" class="token-balance">---</div>
-                </div>
+            <div class="token-inline">
+                <span class="token-label">Tokens:</span>
+                <span id="token-display" class="token-value">---</span>
                 <a href="refill.html" class="link-btn">Refill +</a>
             </div>
 
             <div class="controls">
                 <button id="start-btn" class="btn btn-primary">Start Live Session</button>
                 <button id="stop-btn" class="btn btn-danger" style="display: none;">End Session</button>
+                <button id="flip-btn" class="btn btn-secondary" style="display: none;">Flip Camera</button>
             </div>
             
             <div id="error-message" style="color: var(--danger); font-size: 0.875rem; display: none;"></div>

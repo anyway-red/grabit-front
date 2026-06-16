@@ -11,12 +11,14 @@ const canvasEl = document.getElementById('hidden-canvas');
 const ctx = canvasEl.getContext('2d');
 const startBtn = document.getElementById('start-btn');
 const stopBtn = document.getElementById('stop-btn');
+const flipBtn = document.getElementById('flip-btn');
 const statusIndicator = document.getElementById('status-indicator');
 const statusText = document.getElementById('status-text');
 const tokenDisplay = document.getElementById('token-display');
 const errorMsg = document.getElementById('error-message');
 
 // State
+let currentFacingMode = 'environment'; // start with back camera
 let ws = null;
 let mediaStream = null;
 let sendInterval = null;
@@ -106,7 +108,7 @@ async function startSession() {
 
     try {
         mediaStream = await navigator.mediaDevices.getUserMedia({
-            video: { width: 640, height: 480 },
+            video: { width: 640, height: 480, facingMode: currentFacingMode },
             audio: {
                 echoCancellation: true,
                 noiseSuppression: true,
@@ -124,6 +126,7 @@ async function startSession() {
             statusText.innerText = 'Connected';
             startBtn.style.display = 'none';
             stopBtn.style.display = 'block';
+            flipBtn.style.display = 'block';
 
             sendInterval = setInterval(captureAndSendFrame, 500);
             startAudioCapture();
@@ -231,11 +234,45 @@ function stopSession() {
     statusText.innerText = 'Disconnected';
     startBtn.style.display = 'block';
     stopBtn.style.display = 'none';
+    flipBtn.style.display = 'none';
 
     fetchBalance();
 }
 
+async function flipCamera() {
+    currentFacingMode = currentFacingMode === 'environment' ? 'user' : 'environment';
+    flipBtn.innerText = currentFacingMode === 'environment' ? 'Flip Camera' : 'Flip Camera (Front)';
+
+    // Stop old tracks
+    if (mediaStream) {
+        mediaStream.getTracks().forEach(track => track.stop());
+    }
+
+    // Disconnect old audio capture
+    if (audioInputProcessor && audioInputSource) {
+        audioInputProcessor.disconnect();
+        audioInputSource.disconnect();
+        audioInputProcessor = null;
+        audioInputSource = null;
+    }
+
+    // Get new stream with opposite camera
+    mediaStream = await navigator.mediaDevices.getUserMedia({
+        video: { width: 640, height: 480, facingMode: currentFacingMode },
+        audio: {
+            echoCancellation: true,
+            noiseSuppression: true,
+            autoGainControl: true
+        }
+    });
+    videoEl.srcObject = mediaStream;
+
+    // Restart audio capture on new stream
+    startAudioCapture();
+}
+
 startBtn.addEventListener('click', startSession);
 stopBtn.addEventListener('click', stopSession);
+flipBtn.addEventListener('click', flipCamera);
 
 fetchBalance();
