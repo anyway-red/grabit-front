@@ -12,6 +12,8 @@ const ctx = canvasEl.getContext('2d');
 const startBtn = document.getElementById('start-btn');
 const stopBtn = document.getElementById('stop-btn');
 const flipBtn = document.getElementById('flip-btn');
+const startScreen = document.getElementById('start-screen');
+const callBar = document.getElementById('call-bar');
 const statusIndicator = document.getElementById('status-indicator');
 const statusText = document.getElementById('status-text');
 const tokenDisplay = document.getElementById('token-display');
@@ -124,9 +126,8 @@ async function startSession() {
         ws.onopen = () => {
             statusIndicator.className = 'status-indicator connected';
             statusText.innerText = 'Connected';
-            startBtn.style.display = 'none';
-            stopBtn.style.display = 'block';
-            flipBtn.style.display = 'block';
+            startScreen.style.display = 'none';
+            callBar.style.display = 'flex';
 
             sendInterval = setInterval(captureAndSendFrame, 500);
             startAudioCapture();
@@ -137,6 +138,7 @@ async function startSession() {
             if (msg.error) {
                 errorMsg.innerText = msg.error;
                 errorMsg.style.display = 'block';
+                setTimeout(() => { errorMsg.style.display = 'none'; }, 5000);
                 if (msg.error.includes("Refill") || msg.error.includes("tokens")) {
                     stopSession();
                 }
@@ -232,9 +234,8 @@ function stopSession() {
 
     statusIndicator.className = 'status-indicator error';
     statusText.innerText = 'Disconnected';
-    startBtn.style.display = 'block';
-    stopBtn.style.display = 'none';
-    flipBtn.style.display = 'none';
+    startScreen.style.display = 'flex';
+    callBar.style.display = 'none';
 
     fetchBalance();
 }

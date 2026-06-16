@@ -1,15 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
-
-:root {
-    --bg-light: #ffffff;
-    --text-dark: #000000;
-    --border-color: #000000;
-    --primary: #000000;
-    --primary-hover: #333333;
-    --text-muted: #555555;
-    --success: #000000;
-    --danger: #000000;
-}
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
 
 * {
     box-sizing: border-box;
@@ -19,191 +8,219 @@
 }
 
 body {
-    background-color: var(--bg-light);
-    color: var(--text-dark);
+    background: #000;
+    color: #fff;
     min-height: 100vh;
-    overflow-x: hidden;
+    overflow: hidden;
 }
 
-/* Minimalist Blueprint Boxes */
-.minimal-box {
-    background: var(--bg-light);
-    border: 2px solid var(--border-color);
-    padding: 1.5rem;
-}
-
-/* Landing Page Layout */
-.landing-container {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    min-height: 100vh;
-    padding: 2rem;
-    text-align: center;
-}
-
-.landing-title {
-    font-size: 3rem;
-    font-weight: 800;
-    margin-bottom: 1rem;
-    text-transform: uppercase;
-    letter-spacing: -0.05em;
-    border-bottom: 4px solid var(--border-color);
-    display: inline-block;
-    padding-bottom: 0.5rem;
-}
-
-.landing-subtitle {
-    font-size: 1.25rem;
-    font-weight: 400;
-    color: var(--text-muted);
-    margin-bottom: 3rem;
-    max-width: 600px;
-}
-
-/* Main UI Layout for App */
+/* ── App shell ─────────────────────────────────────────── */
 .app-container {
     position: relative;
     width: 100vw;
     height: 100vh;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    background-color: #000;
 }
 
+/* ── Fullscreen camera ──────────────────────────────────── */
 #camera-feed {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    z-index: 0;
+    background: #000;
+}
+
+/* ── Top bar ────────────────────────────────────────────── */
+.top-bar {
     position: fixed;
     top: 0;
     left: 0;
-    width: 100vw;
-    height: 100vh;
-    object-fit: cover;
-    z-index: 0;
-    background-color: #000;
-}
-
-.ui-overlay {
-    position: absolute;
-    bottom: 2rem;
-    right: 2rem;
+    right: 0;
     z-index: 10;
-    width: 300px;
     display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    box-shadow: 8px 8px 0px var(--border-color);
-}
-
-.header h1 {
-    font-size: 1.25rem;
-    font-weight: 800;
-    margin-bottom: 0.5rem;
-    text-transform: uppercase;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.55) 0%, transparent 100%);
 }
 
 .status-badge {
-    display: inline-flex;
+    display: flex;
     align-items: center;
     gap: 0.5rem;
-    font-size: 0.875rem;
+    font-size: 0.8rem;
     font-weight: 600;
     text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: rgba(255,255,255,0.85);
 }
 
 .status-indicator {
-    width: 12px;
-    height: 12px;
-    border: 2px solid var(--border-color);
-    background-color: white;
-}
-.status-indicator.connected {
-    background-color: var(--border-color);
-}
-.status-indicator.error {
-    background-color: var(--border-color);
-    background-image: repeating-linear-gradient(45deg, transparent, transparent 2px, #000 2px, #000 4px);
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.4);
+    border: 1.5px solid rgba(255,255,255,0.6);
 }
 
-/* Tokens */
-.token-inline {
+.status-indicator.connected {
+    background: #4ade80;
+    border-color: #4ade80;
+    box-shadow: 0 0 6px #4ade80;
+    animation: pulse-green 2s infinite;
+}
+
+.status-indicator.error {
+    background: #f87171;
+    border-color: #f87171;
+}
+
+@keyframes pulse-green {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+/* Token text — top right */
+.token-text {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: rgba(255,255,255,0.9);
+    text-shadow: 0 1px 4px rgba(0,0,0,0.6);
+}
+
+.refill-link {
+    color: #a5f3fc;
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.refill-link:hover {
+    color: #fff;
+    text-decoration: underline;
+}
+
+/* ── Pre-session start screen ───────────────────────────── */
+.start-screen {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
     display: flex;
     align-items: center;
-    gap: 0.6rem;
-    border-top: 2px solid var(--border-color);
-    padding-top: 0.75rem;
-    margin-top: 0.25rem;
-    font-size: 0.875rem;
+    justify-content: center;
+    background: rgba(0, 0, 0, 0.55);
+    backdrop-filter: blur(4px);
 }
 
-.token-label {
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    font-size: 0.75rem;
-}
-
-.token-value {
-    font-weight: 800;
-    font-size: 1rem;
-    flex: 1;
-}
-
-.link-btn {
-    color: var(--text-dark);
-    text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 800;
-    text-transform: uppercase;
-    border-bottom: 2px solid var(--border-color);
-}
-.link-btn:hover {
-    background-color: var(--border-color);
-    color: var(--bg-light);
-}
-
-/* Buttons */
-.btn {
-    width: 100%;
-    padding: 1rem;
-    border: 2px solid var(--border-color);
-    font-size: 1rem;
-    font-weight: 800;
+.btn-start {
+    background: rgba(255, 255, 255, 0.12);
+    color: #fff;
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    border-radius: 50px;
+    padding: 1rem 3rem;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     cursor: pointer;
-    background-color: var(--bg-light);
-    color: var(--text-dark);
+    backdrop-filter: blur(12px);
     transition: all 0.2s ease;
-    box-shadow: 4px 4px 0px var(--border-color);
 }
 
-.btn:hover {
-    transform: translate(2px, 2px);
-    box-shadow: 2px 2px 0px var(--border-color);
+.btn-start:hover {
+    background: rgba(255, 255, 255, 0.22);
+    border-color: rgba(255, 255, 255, 0.9);
+    transform: scale(1.03);
 }
 
-.btn:active {
-    transform: translate(4px, 4px);
-    box-shadow: 0px 0px 0px var(--border-color);
+.btn-start:active {
+    transform: scale(0.97);
 }
 
-.btn-primary {
-    background-color: var(--border-color);
-    color: var(--bg-light);
+/* ── In-call bottom bar ─────────────────────────────────── */
+.call-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 10;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 2.5rem;
+    padding: 2rem 2rem 3rem;
+    background: linear-gradient(to top, rgba(0,0,0,0.65) 0%, transparent 100%);
 }
 
-.btn-secondary {
-    background-color: var(--bg-light);
-    color: var(--text-dark);
-    border: 2px solid var(--border-color);
+/* Generic call button (circular, frosted) */
+.call-btn {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(255, 255, 255, 0.18);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    box-shadow: 0 4px 20px rgba(0,0,0,0.35);
+    transition: all 0.2s ease;
 }
 
-/* Refill Page */
+.call-btn:hover {
+    background: rgba(255, 255, 255, 0.28);
+    transform: scale(1.08);
+}
+
+.call-btn:active {
+    transform: scale(0.93);
+}
+
+/* Hang up — red */
+.call-btn-hangup {
+    width: 74px;
+    height: 74px;
+    background: rgba(239, 68, 68, 0.85);
+}
+
+.call-btn-hangup:hover {
+    background: rgba(239, 68, 68, 1);
+}
+
+/* ── Error toast ────────────────────────────────────────── */
+.error-toast {
+    position: fixed;
+    bottom: 7rem;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 30;
+    background: rgba(239, 68, 68, 0.85);
+    color: #fff;
+    padding: 0.6rem 1.4rem;
+    border-radius: 50px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    display: none;
+    backdrop-filter: blur(8px);
+    text-align: center;
+}
+
+/* ── Refill page ────────────────────────────────────────── */
+:root {
+    --bg-light: #ffffff;
+    --text-dark: #000000;
+    --border-color: #000000;
+    --text-muted: #555555;
+}
+
 .refill-container {
     max-width: 900px;
     margin: 4rem auto;
     padding: 2rem;
+    color: #000;
 }
 
 .packages-grid {
@@ -213,28 +230,86 @@ body {
     margin-top: 3rem;
 }
 
+.minimal-box {
+    background: #fff;
+    border: 2px solid #000;
+    padding: 1.5rem;
+}
+
 .package-card {
     display: flex;
     flex-direction: column;
     gap: 1rem;
-    box-shadow: 8px 8px 0px var(--border-color);
+    box-shadow: 8px 8px 0px #000;
 }
 
 .package-price {
     font-size: 2.5rem;
     font-weight: 800;
-    border-bottom: 2px solid var(--border-color);
+    border-bottom: 2px solid #000;
     padding-bottom: 0.5rem;
     margin-bottom: 0.5rem;
 }
 
-/* Animations */
-@keyframes blink {
-    0% { opacity: 1; }
-    50% { opacity: 0; }
-    100% { opacity: 1; }
+.btn {
+    width: 100%;
+    padding: 1rem;
+    border: 2px solid #000;
+    font-size: 1rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    cursor: pointer;
+    background: #fff;
+    color: #000;
+    transition: all 0.2s ease;
+    box-shadow: 4px 4px 0px #000;
 }
 
-.pulse-anim {
-    animation: blink 1s infinite step-end;
+.btn:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px #000;
+}
+
+.btn-primary {
+    background: #000;
+    color: #fff;
+}
+
+.landing-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 2rem;
+    text-align: center;
+    background: #fff;
+    color: #000;
+}
+
+.landing-title {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+    letter-spacing: -0.05em;
+    border-bottom: 4px solid #000;
+    display: inline-block;
+    padding-bottom: 0.5rem;
+}
+
+.landing-subtitle {
+    font-size: 1.25rem;
+    color: #555;
+    margin-bottom: 3rem;
+    max-width: 600px;
+}
+
+.link-btn {
+    color: #000;
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    border-bottom: 2px solid #000;
 }

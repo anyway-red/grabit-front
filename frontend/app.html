@@ -10,32 +10,45 @@
     <div class="app-container">
         <!-- Hidden canvas for capturing video frames -->
         <canvas id="hidden-canvas" style="display: none;"></canvas>
-        
+
+        <!-- Fullscreen camera feed -->
         <video id="camera-feed" autoplay playsinline muted></video>
-        
-        <div class="ui-overlay minimal-box">
-            <div class="header">
-                <h1>DIY Fix Assistant</h1>
-                <div class="status-badge">
-                    <div id="status-indicator" class="status-indicator"></div>
-                    <span id="status-text">Disconnected</span>
-                </div>
-            </div>
 
-            <div class="token-inline">
-                <span class="token-label">Tokens:</span>
-                <span id="token-display" class="token-value">---</span>
-                <a href="refill.html" class="link-btn">Refill +</a>
+        <!-- Top bar: status left, tokens right -->
+        <div class="top-bar">
+            <div class="status-badge">
+                <div id="status-indicator" class="status-indicator"></div>
+                <span id="status-text">Disconnected</span>
             </div>
-
-            <div class="controls">
-                <button id="start-btn" class="btn btn-primary">Start Live Session</button>
-                <button id="stop-btn" class="btn btn-danger" style="display: none;">End Session</button>
-                <button id="flip-btn" class="btn btn-secondary" style="display: none;">Flip Camera</button>
+            <div class="token-text">
+                <span id="token-display">---</span> tokens · <a href="refill.html" class="refill-link">Refill</a>
             </div>
-            
-            <div id="error-message" style="color: var(--danger); font-size: 0.875rem; display: none;"></div>
         </div>
+
+        <!-- Pre-session start button (centered) -->
+        <div id="start-screen" class="start-screen">
+            <button id="start-btn" class="btn-start">Start Session</button>
+        </div>
+
+        <!-- In-call bottom bar -->
+        <div id="call-bar" class="call-bar" style="display: none;">
+            <button id="flip-btn" class="call-btn" title="Flip Camera">
+                <!-- Flip icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="28" height="28">
+                    <path d="M20 5h-3.17L15 3H9L7.17 5H4C2.9 5 2 5.9 2 7v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm-8 13c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5z"/>
+                    <path d="M12 10.5l-3 3h2.25v3h1.5v-3H15z" opacity=".6"/>
+                </svg>
+            </button>
+
+            <button id="stop-btn" class="call-btn call-btn-hangup" title="End Call">
+                <!-- Hangup icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="white" width="32" height="32">
+                    <path d="M6.62 10.79a15.053 15.053 0 006.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1C10.61 21 3 13.39 3 4c0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.24 1.02l-2.21 2.2z" transform="rotate(135 12 12)"/>
+                </svg>
+            </button>
+        </div>
+
+        <div id="error-message" class="error-toast"></div>
     </div>
     <script src="app.js"></script>
 </body>
