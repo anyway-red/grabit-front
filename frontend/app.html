@@ -14,20 +14,23 @@
         <!-- Fullscreen camera feed -->
         <video id="camera-feed" autoplay playsinline muted></video>
 
-        <!-- Top bar: status left, tokens right -->
+        <!-- Top bar: status only (tokens shown in pre-call card) -->
         <div class="top-bar">
             <div class="status-badge">
                 <div id="status-indicator" class="status-indicator"></div>
                 <span id="status-text">Disconnected</span>
             </div>
-            <div class="token-text">
-                <span id="token-display">---</span> tokens · <a href="refill.html" class="refill-link">Refill</a>
-            </div>
         </div>
 
-        <!-- Pre-session start button (centered) -->
+        <!-- Pre-session card (centered) -->
         <div id="start-screen" class="start-screen">
-            <button id="start-btn" class="btn-start">Start Session</button>
+            <div class="pre-call-card">
+                <div class="pre-call-logo">🔧 DIY Fix</div>
+                <p class="pre-call-label">Your token balance</p>
+                <div class="pre-call-tokens" id="token-display">---</div>
+                <a href="refill.html" class="pre-call-refill">+ Buy Tokens</a>
+                <button id="start-btn" class="pre-call-start">📞 Start Call</button>
+            </div>
         </div>
 
         <!-- In-call bottom bar -->
